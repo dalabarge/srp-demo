@@ -51,7 +51,7 @@ class Login extends Controller
     }
 
     /**
-     * Create and store a challenge for the user by identifier.
+     * Create and store a challenge for the user by identity.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -65,8 +65,8 @@ class Login extends Controller
             ->challenge($user->email, $user->verifier, $user->salt);
 
         return response()->json([
-            'identifier' => $user->email,
-            'challenge'  => $challenge,
+            'identity'  => $user->email,
+            'challenge' => $challenge,
         ]);
     }
 
@@ -87,13 +87,13 @@ class Login extends Controller
         auth()->login($user);
 
         return response()->json([
-            'identifier' => $user->email,
-            'proof'      => $proof,
+            'identity' => $user->email,
+            'proof'    => $proof,
         ]);
     }
 
     /**
-     * Store a challenge for the user matching the email identifier.
+     * Store a challenge for the user matching the email identity.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -108,7 +108,7 @@ class Login extends Controller
     }
 
     /**
-     * Find a user by the email identifier.
+     * Find a user by the email identity.
      *
      * @param string $email
      *
