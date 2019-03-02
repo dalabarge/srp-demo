@@ -52,7 +52,7 @@ class Register extends Controller
     {
         if ($this->find($request->email)) {
             return redirect()->route('user.login')
-                ->with('error', 'Looks like you\'ve already register. Please sign in to your account.')
+                ->with('error', 'Looks like you\'ve already registered. Please sign in to your account.')
                 ->with('email', $request->email);
         }
 
