@@ -1,0 +1,32 @@
+// Fonts
+@import url("https://fonts.googleapis.com/css?family=Roboto");
+@import "~uikit/src/scss/variables-theme";
+@import "~uikit/src/scss/mixins-theme";
+@import "~uikit/src/scss/uikit-theme";
+
+body,
+html {
+    background-color: lighten($global-muted-color, 30%);
+}
+
+.uk-form-required::after {
+    content: '*';
+    display: inline-block;
+    color: $global-danger-background;
+    margin-left: 0.3rem;
+}
+
+.uk-form-label {
+    font-weight: 600;
+    font-size: 1rem;
+    color: $global-color;
+}
+
+.uk-card,
+.uk-button-primary {
+    border-radius: 5px;
+}
+
+.uk-button-link {
+    text-transform: none;
+}
