@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\User\Auth;
 
 use ArtisanSdk\SRP\Contracts\Service as Contract;
+use ArtisanSdk\SRP\Exceptions\StepReplay;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Traits\ForwardsCalls;
@@ -58,7 +59,12 @@ class SRP
      */
     public function __call(string $method, array $arguments = [])
     {
-        $result = $this->forwardCallTo($this->service, $method, $arguments);
+        try {
+            $result = $this->forwardCallTo($this->service, $method, $arguments);
+        } catch (StepReplay $exception) {
+            $this->reset();
+            throw $exception;
+        }
 
         if ($this->service->identity()) {
             $this->save();

@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\User;
 
+use App\User\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Crypt;
 
-class Model extends Eloquent implements AuthorizableContract
+class Model extends Eloquent implements AuthorizableContract, AuthenticatableContract
 {
-    use Authorizable;
+    use Authorizable, Authenticatable;
 
     /**
      * The table associated with the model.

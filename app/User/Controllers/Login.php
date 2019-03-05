@@ -7,7 +7,12 @@ namespace App\User\Controllers;
 use App\Http\Controllers\Controller;
 use App\User\Auth\SRP;
 use App\User\Model;
+use ArtisanSdk\SRP\Exceptions\InvalidKey;
+use ArtisanSdk\SRP\Exceptions\PasswordMismatch;
+use ArtisanSdk\SRP\Exceptions\StepReplay;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class Login extends Controller
 {
@@ -59,14 +64,26 @@ class Login extends Controller
      */
     public function store(Request $request)
     {
-        $user = $this->find($request->email);
+        try {
+            $user = $this->find($request->email);
+        } catch (ModelNotFoundException $exception) {
+            return response()->json([
+                'message' => 'The email address is not yet registered.',
+            ], Response::HTTP_NOT_FOUND);
+        }
 
-        $challenge = $this->srp->load($user->email)
-            ->challenge($user->email, $user->verifier, $user->salt);
+        try {
+            $key = $this->srp->load($user->email)
+                ->challenge($user->email, $user->verifier, $user->salt);
+        } catch (StepReplay $exception) {
+            return response()->json([
+                'message' => 'Please login in again, a little faster this time.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
 
         return response()->json([
-            'identity'  => $user->email,
-            'challenge' => $challenge,
+            'salt' => $user->salt,
+            'key'  => $key,
         ]);
     }
 
@@ -79,16 +96,34 @@ class Login extends Controller
      */
     public function update(Request $request)
     {
-        $user = $this->find($request->email);
+        try {
+            $user = $this->find($request->email);
+        } catch (ModelNotFoundException $exception) {
+            return response()->json([
+                'message' => 'The email address is not yet registered.',
+            ], Response::HTTP_NOT_FOUND);
+        }
 
-        $proof = $this->srp->load($user->email)
-            ->verify($request->key, $request->proof);
+        try {
+            $proof = $this->srp->load($user->email)
+                ->verify($request->key, $request->proof);
+        } catch (InvalidKey $exception) {
+            return response()->json([
+                'errors'  => ['key' => $exception->getMessage()],
+                'message' => 'This client is not configured correctly.',
+            ], Response::HTTP_BAD_REQUEST);
+        } catch (PasswordMismatch $exception) {
+            return response()->json([
+                'message' => 'The password does not match. Please try again.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $this->srp->reset();
 
         auth()->login($user);
 
         return response()->json([
-            'identity' => $user->email,
-            'proof'    => $proof,
+            'proof' => $proof,
         ]);
     }
 

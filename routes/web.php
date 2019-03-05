@@ -11,7 +11,7 @@
 |
 */
 
-Route::redirect('/', 'login');
+Route::view('/', 'index')->name('index');
 
 // Registration: SRP Enrollment
 Route::get('register', '\App\User\Controllers\Register@show')->name('user.register');

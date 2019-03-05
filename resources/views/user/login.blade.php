@@ -4,7 +4,7 @@
     <login
         api="{{ route('user.login') }}"
         register="{{ route('user.register') }}"
-        redirect="https://github.com/artisansdk/srp"
+        redirect="{{ route('index') }}"
         title="@yield('title')"
         @if(session()->has('error'))
             error="{{ session()->pull('error') }}"
@@ -12,6 +12,7 @@
         @if( $email )
             :user="{{ json_encode(compact('email')) }}"
         @endif
+        :config="{{ json_encode(config('srp')) }}"
     >
     </login>
 @stop

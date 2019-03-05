@@ -5,7 +5,7 @@
     <div class="uk-width-2-3@s uk-width-1-2@m uk-width-2-5@l">
       <nav class="uk-navbar-container uk-navbar uk-navbar-transparent uk-margin-bottom uk-margin-top" uk-navbar>
         <div class="uk-navbar-center">
-          <h1><a href="{{ route('user.login') }}">SRP Demo</a></h1>
+          <h1><a href="{{ route('index') }}">SRP Demo</a></h1>
         </div>
       </nav>
       <div class="uk-card uk-card-default uk-card-body">

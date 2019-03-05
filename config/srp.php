@@ -16,5 +16,5 @@ return [
     'algorithm' => 'sha256',
 
     // The TTL for the cache in seconds
-    'ttl' => 10,
+    'ttl' => 30,
 ];
