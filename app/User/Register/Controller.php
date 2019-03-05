@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\User\Controllers;
+namespace App\User\Register;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controller as BaseController;
 use App\User\Model;
-use Illuminate\Http\Request;
+use App\User\Register\Requests\Show;
+use App\User\Register\Requests\Store;
 
-class Register extends Controller
+class Controller extends BaseController
 {
     /**
      * The user model.
@@ -30,11 +31,11 @@ class Register extends Controller
     /**
      * Show the register form.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param \App\User\Register\Requests\Show $request
      *
      * @return \Illuminate\View\View
      */
-    public function show(Request $request)
+    public function show(Show $request)
     {
         return view('user.register')
             ->with('email', $request->old('email', session('email', $request->email)))
@@ -44,36 +45,16 @@ class Register extends Controller
     /**
      * Create a user by the identifier with the stored password verifier and salt.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param \App\User\Register\Requests\Store $request
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Store $request)
     {
-        if ($this->find($request->email)) {
-            return redirect()->route('user.login')
-                ->with('error', 'Looks like you\'ve already registered. Please sign in to your account.')
-                ->with('email', $request->email);
-        }
-
         $user = $this->model->create($request->only('name', 'email', 'verifier', 'salt'));
 
         return redirect()->route('user.login')
             ->with('message', 'You have been successfully registered.')
             ->with('email', $user->email);
-    }
-
-    /**
-     * Find the user by the email identifier if it exists.
-     *
-     * @param string $email
-     *
-     * @return \App\User\Model
-     */
-    protected function find(string $email): ?Model
-    {
-        return $this->model->newQuery()
-            ->where('email', $email)
-            ->first();
     }
 }

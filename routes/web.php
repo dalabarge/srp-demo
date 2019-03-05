@@ -14,13 +14,13 @@
 Route::view('/', 'index')->name('index');
 
 // Registration: SRP Enrollment
-Route::get('register', '\App\User\Controllers\Register@show')->name('user.register');
-Route::post('register', '\App\User\Controllers\Register@store')->name('user.register');
+Route::get('register', '\App\User\Register\Controller@show')->name('user.register');
+Route::post('register', '\App\User\Register\Controller@store')->name('user.register');
 
 // Authentication: SRP Challenge
-Route::get('login', '\App\User\Controllers\Login@show')->name('user.login');
-Route::post('login', '\App\User\Controllers\Login@store')->name('user.login');
-Route::patch('login', '\App\User\Controllers\Login@update')->name('user.login');
+Route::get('login', '\App\User\Auth\Controller@show')->name('user.login');
+Route::post('login', '\App\User\Auth\Controller@store')->name('user.login');
+Route::patch('login', '\App\User\Auth\Controller@update')->name('user.login');
 
 // Deauthentication: Destroy Session
-Route::any('logout', '\App\User\Controllers\Login@delete')->name('user.logout');
+Route::any('logout', '\App\User\Auth\Controller@delete')->name('user.logout');

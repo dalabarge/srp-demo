@@ -47,7 +47,7 @@
     import crypto from 'crypto-js/core'
     import SHA256 from 'crypto-js/sha256'
     export default {
-        props: ['api', 'redirect', 'register', 'user', 'error', 'title', 'config'],
+        props: ['api', 'redirect', 'register', 'logout', 'user', 'bag', 'title', 'config'],
         data() {
             return {
                 step: 1,
@@ -60,23 +60,21 @@
                     key: null,
                 },
                 errors: {
-                    errors: {},
-                    message: this.error,
+                    errors: this.bag || {},
+                    message: null,
                 },
             }
         },
         mounted() {
-            this.reset({
-                errors: {},
-                message: null,
-            })
-            if( ! this.error && this.user && this.user.email ) {
+            this.reset()
+            if( ! this.bag && this.user && this.user.email ) {
                 this.initiate(this.user.email)
             }
         },
         computed: {
             has_errors() {
-                return !_.isEmpty(this.errors.message)
+                return !_.isEmpty(this.list_errors)
+                    || !_.isEmpty(this.errors.message)
             },
             list_errors() {
                 return _.flatten(_.values(this.errors.errors))

@@ -5,9 +5,10 @@
         api="{{ route('user.login') }}"
         register="{{ route('user.register') }}"
         redirect="{{ route('index') }}"
+        logout="{{ route('user.logout') }}"
         title="@yield('title')"
-        @if(session()->has('error'))
-            error="{{ session()->pull('error') }}"
+        @if($errors->any())
+            :bag="{{ $errors->toJson() }}"
         @endif
         @if( $email )
             :user="{{ json_encode(compact('email')) }}"

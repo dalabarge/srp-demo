@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\User\Controllers;
+namespace App\User\Auth;
 
-use App\Http\Controllers\Controller;
-use App\User\Auth\SRP;
+use App\Http\Controller as BaseController;
+use App\User\Auth\Requests\Show;
+use App\User\Auth\Requests\Store;
+use App\User\Auth\Requests\Update;
 use App\User\Model;
 use ArtisanSdk\SRP\Exceptions\InvalidKey;
 use ArtisanSdk\SRP\Exceptions\PasswordMismatch;
@@ -14,7 +16,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class Login extends Controller
+class Controller extends BaseController
 {
     /**
      * The user model.
@@ -45,11 +47,11 @@ class Login extends Controller
     /**
      * Show the login form.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param \App\User\Auth\Requests\Show $request
      *
      * @return \Illuminate\View\View
      */
-    public function show(Request $request)
+    public function show(Show $request)
     {
         return view('user.login')
             ->with('email', $request->old('email', session('email', $request->email)));
@@ -58,11 +60,11 @@ class Login extends Controller
     /**
      * Create and store a challenge for the user by identity.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param \App\User\Auth\Requests\Store $request
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Store $request)
     {
         try {
             $user = $this->find($request->email);
@@ -90,11 +92,11 @@ class Login extends Controller
     /**
      * Verify the proof of password and authenticate the user.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param \App\User\Auth\Requests\Update $request
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Update $request)
     {
         try {
             $user = $this->find($request->email);
@@ -130,11 +132,9 @@ class Login extends Controller
     /**
      * Store a challenge for the user matching the email identity.
      *
-     * @param \Illuminate\Http\Request $request
-     *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function delete(Request $request)
+    public function delete()
     {
         auth()->logout();
 

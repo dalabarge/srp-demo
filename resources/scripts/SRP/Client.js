@@ -26,13 +26,13 @@ export default class Client {
         this._config = config
         this.ONE = new BigInteger('1')
         this.ZERO = new BigInteger('0')
-        this.password = null
-        this.salt = null
-        this.identity = null
-        this.private = null
-        this.public = null
-        this.session = null
-        this.proof = null
+        this._password = null
+        this._salt = null
+        this._identity = null
+        this._private = null
+        this._public = null
+        this._session = null
+        this._proof = null
     }
 
     /**
@@ -59,10 +59,10 @@ export default class Client {
      * @return string
      */
     enroll(identity, password, salt) {
-        this.identity = identity
-        this.salt = salt
+        this._identity = identity
+        this._salt = salt
 
-        const signature = this.signature(identity, password, this.salt)
+        const signature = this.signature(identity, password, this._salt)
 
         return this._toHex(this._config.generator().modPow(signature, this._config.prime()))
     }
@@ -77,16 +77,16 @@ export default class Client {
      * @return string
      */
     identify(identity, password, salt) {
-        this.identity = identity
-        this.password = password
-        this.salt = salt
+        this._identity = identity
+        this._password = password
+        this._salt = salt
 
-        while (!this.public || this.public.mod(this._config.prime()).equals(this.ZERO)) {
-            this.private = this.number()
-            this.public = this._config.generator().modPow(this.private, this._config.prime())
+        while (!this._public || this._public.mod(this._config.prime()).equals(this.ZERO)) {
+            this._private = this.number()
+            this._public = this._config.generator().modPow(this._private, this._config.prime())
         }
 
-        return this._unpad(this._toHex(this.public))
+        return this._unpad(this._toHex(this._public))
     }
 
     /**
@@ -107,25 +107,25 @@ export default class Client {
         }
 
         // Create proof M1 of password using A and previously stored verifier v
-        let union = this._fromHex(this.hash(this._toHex(this.public) + this._toHex(server)))
-        const signature = this.signature(this.identity, this.password, salt)
-        const exponent = union.multiply(signature).add(this.private)
+        let union = this._fromHex(this.hash(this._toHex(this._public) + this._toHex(server)))
+        const signature = this.signature(this._identity, this._password, salt)
+        const exponent = union.multiply(signature).add(this._private)
         const shared = this._unpad(this._toHex(server.subtract(this._config.generator().modPow(signature, this._config.prime()).multiply(this._config.key())).modPow(exponent, this._config.prime())))
 
         // Compute verification M = H(A | B | S)
-        const message = this._unpad(this.hash(this._toHex(this.public) + this._toHex(server) + shared))
+        const message = this._unpad(this.hash(this._toHex(this._public) + this._toHex(server) + shared))
 
         // Generate proof of password M1 = H(A | M | S) using client public key A and shared key S
-        this.proof = this._unpad(this.hash(this._toHex(this.public) + message + shared))
+        this._proof = this._unpad(this.hash(this._toHex(this._public) + message + shared))
 
         // Clear stored state for P, s, a, and A
-        this.password = null
-        this.salt = null
-        this.private = null
-        this.public = null
+        this._password = null
+        this._salt = null
+        this._private = null
+        this._public = null
 
         // Save shared session key K and
-        this.session = this.hash(shared)
+        this._session = this.hash(shared)
 
         // Respond with message M1
         return message
@@ -140,8 +140,8 @@ export default class Client {
      * @return bool
      */
     confirm(proof) {
-        return this.proof &&
-            this.proof === proof
+        return this._proof &&
+            this._proof === proof
     }
 
     /**
@@ -168,7 +168,7 @@ export default class Client {
      * @return string
      */
     identity() {
-        return this.identity
+        return this._identity
     }
 
     /**
@@ -177,7 +177,7 @@ export default class Client {
      * @return string
      */
     session() {
-        return this.session
+        return this._session
     }
 
     /**
@@ -189,8 +189,8 @@ export default class Client {
      * @return string
      */
     salt(identity, salt) {
-        this.identity = identity
-        this.salt = salt
+        this._identity = identity
+        this._salt = salt
 
         return this.hash(moment().seconds() + ':' + this.number())
     }
@@ -210,7 +210,7 @@ export default class Client {
 
         while (number.equals(this.ZERO)) {
             number = this._bytes(1 + bits / 8)
-                .add(this._nonce(this.identity, this.salt))
+                .add(this._nonce(this._identity, this._salt))
                 .modPow(this.ONE, this._config.prime())
         }
 

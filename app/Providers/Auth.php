@@ -2,39 +2,24 @@
 
 namespace App\Providers;
 
+use App\User\Auth\Controller;
 use App\User\Auth\SRP;
-use App\User\Controllers\Login;
 use ArtisanSdk\SRP\Config;
 use ArtisanSdk\SRP\Server;
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider;
 
-class Auth extends ServiceProvider
+class Auth extends AuthServiceProvider
 {
-    /**
-     * The policy mappings for the application.
-     *
-     * @var array
-     */
-    protected $policies = [];
-
-    /**
-     * Register any authentication / authorization services.
-     */
-    public function boot()
-    {
-        $this->registerPolicies();
-    }
-
     /**
      * Register any application services.
      */
     public function register()
     {
-        $config = $this->app['config']->get('srp');
-
-        $this->app->when(Login::class)
+        $this->app->when(Controller::class)
             ->needs(SRP::class)
-            ->give(function ($app) use ($config) {
+            ->give(function ($app) {
+                $config = $app['config']->get('srp');
+
                 return new SRP(
                     new Server(Config::fromArray($config)),
                     $app['cache.store'],
